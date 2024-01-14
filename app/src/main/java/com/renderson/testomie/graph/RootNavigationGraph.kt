@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.renderson.testomie.ui.screen.BuyComposable
 import com.renderson.testomie.ui.screen.HomComposable
+import com.renderson.testomie.ui.screen.SellComposable
 
 @Composable
 fun RootNavigationGraph(navController: NavHostController) {
@@ -16,11 +16,11 @@ fun RootNavigationGraph(navController: NavHostController) {
     ) {
         composable(route = Graph.HOME) {
             HomComposable {
-                navController.navigate(Graph.BUY)
+                navController.navigate(Graph.SELL)
             }
         }
-        composable(route = Graph.BUY) {
-            BuyComposable {
+        composable(route = Graph.SELL) {
+            SellComposable {
                 navController.popBackStack()
             }
         }
@@ -30,5 +30,5 @@ fun RootNavigationGraph(navController: NavHostController) {
 object Graph {
     const val ROOT = "root_graph"
     const val HOME = "home_graph"
-    const val BUY = "buy_graph"
+    const val SELL = "sell_graph"
 }
