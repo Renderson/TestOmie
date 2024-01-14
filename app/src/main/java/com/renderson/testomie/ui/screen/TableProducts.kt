@@ -3,13 +3,16 @@ package com.renderson.testomie.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,118 +36,133 @@ fun TableProducts(products: List<Products>) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, Color.Black)
+                .border(
+                    width = 1.dp,
+                    color = Color.Black,
+                    shape = RoundedCornerShape(4.dp)
+                )
         ) {
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(
-                        width = 1.dp,
-                        color = Color.Black,
-                        shape = RoundedCornerShape(4.dp)
-                    )
             ) {
-                item {
-                    Row(
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    Text(
+                        text = "Nome",
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = contentColorFor(MaterialTheme.colorScheme.background)
+                    )
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .background(MaterialTheme.colorScheme.background)
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Nome",
-                            modifier = Modifier.weight(1f),
+                            text = "Quantidade",
                             style = MaterialTheme.typography.bodyMedium,
                             color = contentColorFor(MaterialTheme.colorScheme.background)
                         )
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Quantidade",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = contentColorFor(MaterialTheme.colorScheme.background)
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Valor Unitário",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = contentColorFor(MaterialTheme.colorScheme.background)
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Valor Total",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = contentColorFor(MaterialTheme.colorScheme.background)
-                            )
-                        }
                     }
-                }
-
-                items(products) { produto ->
-                    Row(
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .background(MaterialTheme.colorScheme.background),
-                        verticalAlignment = Alignment.CenterVertically
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = produto.name ?: "",
-                            modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.bodySmall,
+                            text = "Valor Unitário",
+                            style = MaterialTheme.typography.bodyMedium,
                             color = contentColorFor(MaterialTheme.colorScheme.background)
                         )
-                        Box(
+                    }
+                    Box(
+                        modifier = Modifier
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Valor Total",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = contentColorFor(MaterialTheme.colorScheme.background)
+                        )
+                    }
+                }
+                Divider(
+                    color = Color.Black,
+                    modifier = Modifier
+                        .height(1.dp)
+                        .fillMaxWidth()
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                ) {
+                    itemsIndexed(products) { index, product ->
+                        val backgroundColor = if (index % 2 == 0) {
+                            Color.LightGray.copy(0.3f)
+                        } else {
+                            Color.Transparent
+                        }
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            contentAlignment = Alignment.Center
+                                .fillMaxWidth()
+                                .background(backgroundColor),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = produto.amount,
+                                text = product.name ?: "",
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(8.dp),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = contentColorFor(MaterialTheme.colorScheme.background)
                             )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = produto.unitaryValue.toDouble().formatForBrazilianCurrency(),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = contentColorFor(MaterialTheme.colorScheme.background)
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            contentAlignment = Alignment.Center
-                        ){
-                            Text(
-                                text = produto.valorTotal.formatForBrazilianCurrency(),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = contentColorFor(MaterialTheme.colorScheme.background)
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(8.dp)
+                                    .fillMaxHeight(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = product.amount,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = contentColorFor(MaterialTheme.colorScheme.background)
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(8.dp)
+                                    .fillMaxHeight(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = product.unitaryValue.toDouble()
+                                        .formatForBrazilianCurrency(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = contentColorFor(MaterialTheme.colorScheme.background)
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(8.dp)
+                                    .fillMaxHeight(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = product.valorTotal.formatForBrazilianCurrency(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = contentColorFor(MaterialTheme.colorScheme.background)
+                                )
+                            }
                         }
                     }
                 }
@@ -157,9 +175,9 @@ fun TableProducts(products: List<Products>) {
 @Composable
 fun PreviewTableProducts() {
     val products = listOf(
-        Products("Produto A", "5", "10.0"),
-        Products("Produto B", "3", "15.0"),
-        Products("Produto C", "2", "20.0")
+        Products(0, "Produto A", "5", "10.0"),
+        Products(0, "Produto B", "3", "15.0"),
+        Products(0, "Produto C", "2", "20.0")
     )
 
     TableProducts(products = products)
