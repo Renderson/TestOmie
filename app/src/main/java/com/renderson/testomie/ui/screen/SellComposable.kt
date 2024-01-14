@@ -2,15 +2,14 @@ package com.renderson.testomie.ui.screen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -18,26 +17,35 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.renderson.testomie.model.Products
 import com.renderson.testomie.util.OutlinedTextFieldComposable
+import com.renderson.testomie.util.TypeInputEnum
 import com.renderson.testomie.util.formatForBrazilianCurrency
+import com.renderson.testomie.viewmodel.OmieViewModel
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
 @Composable
-fun BuyComposable(onClick: () -> Unit) {
+fun SellComposable(
+    viewModel: OmieViewModel = hiltViewModel(),
+    onClick: () -> Unit
+) {
+
+    val coroutineScope = rememberCoroutineScope()
+
     var productList by remember {
         mutableStateOf(value = emptyList<Products>())
     }
@@ -81,10 +89,9 @@ fun BuyComposable(onClick: () -> Unit) {
         valueTotal = ""
     }
 
-    LaunchedEffect(isIncludeButtonClicked) {
-        if (isIncludeButtonClicked) {
-            clearFields()
-        }
+    if (isIncludeButtonClicked) {
+        isIncludeButtonClicked = false
+        clearFields()
     }
     
     Scaffold(
@@ -93,6 +100,7 @@ fun BuyComposable(onClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(all = 16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Text(
                     modifier = Modifier,
@@ -117,6 +125,7 @@ fun BuyComposable(onClick: () -> Unit) {
                 }
                 OutlinedTextFieldComposable(
                     input = mutableStateOf(unitaryValue),
+                    inputType = TypeInputEnum.CURRENCY,
                     label = "Valor unitário",
                     imeAction = ImeAction.Done,
                     keyboardType = KeyboardType.NumberPassword
@@ -124,20 +133,18 @@ fun BuyComposable(onClick: () -> Unit) {
                     unitaryValue = it
                     updateValueTotal()
                 }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp)
-                        .border(
-                            width = 1.dp,
-                            color = Color.Black,
-                            shape = RoundedCornerShape(4.dp)
-                        )
-                ){
-                    Text(
-                        modifier = Modifier.padding(all = 8.dp),
-                        text = "Valor total do item R$ $valueTotal"
-                    )
+                OutlinedTextFieldComposable(
+                    input = if (valueTotal.isEmpty()) mutableStateOf("") else mutableStateOf(
+                        valueTotal.toDouble().formatForBrazilianCurrency()
+                    ),
+                    label = "Valor total do item",
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.NumberPassword,
+                    readonly = true,
+                    enabled = false
+                ) {
+                    valueTotal = it
+                    updateValueTotal()
                 }
                 Button(
                     modifier = Modifier
@@ -145,7 +152,12 @@ fun BuyComposable(onClick: () -> Unit) {
                         .padding(top = 8.dp),
                     enabled = enabledButton,
                     onClick = {
-                        val newProduct = Products(name, amount, unitaryValue)
+                        val newProduct = Products(
+                            productId = null,
+                            name = name,
+                            amount =  amount,
+                            unitaryValue = unitaryValue
+                        )
                         productList = productList + newProduct
                         isIncludeButtonClicked = true
                     }
@@ -180,11 +192,14 @@ fun BuyComposable(onClick: () -> Unit) {
                             .fillMaxWidth()
                             .padding(top = 16.dp),
                         enabled = productList.isNotEmpty(),
-                        onClick = { /*TODO*/ }
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModel.insertSales(products = productList)
+                            }
+                            onClick.invoke()
+                        }
                     ) {
-                        Text(
-                            text = "Salvar"
-                        )
+                        Text(text = "Salvar")
                     }
                     Button(
                         modifier = Modifier
@@ -197,9 +212,7 @@ fun BuyComposable(onClick: () -> Unit) {
                         border = BorderStroke(1.dp, Color.Red),
                         onClick = { onClick.invoke() }
                     ) {
-                        Text(
-                            text = "Cancelar"
-                        )
+                        Text(text = "Cancelar")
                     }
                 }
             }
@@ -210,6 +223,6 @@ fun BuyComposable(onClick: () -> Unit) {
 
 @Preview
 @Composable
-fun PreviewBuyComposable() {
-    BuyComposable {}
+fun PreviewSellComposable() {
+    SellComposable {}
 }
